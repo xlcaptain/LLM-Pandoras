@@ -1,0 +1,42 @@
+version: '3.5'
+
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms5120m -Xmx5120m
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+    volumes:
+      - ./plugins:/usr/share/elasticsearch/plugins
+      - /data/es-data:/usr/share/elasticsearch/data
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+    networks:
+      - net
+  kibana:
+    container_name: elasticsearch-kibana
+    restart: always
+    image: docker.elastic.co/kibana/kibana:8.9.0
+    environment:
+      I18N_LOCALE: zh-CN
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      XPACK_REPORTING_ROLES_ENABLED: "false"
+    depends_on:
+      - elasticsearch
+    ports:
+      - 5601:5601
+    networks:
+      - net
+networks:
+  net:
+    name: es-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.47.1.0/24
+          gateway: 10.47.1.1
