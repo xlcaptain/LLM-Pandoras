@@ -1,26 +1,6 @@
-import time
 import copy
-import openai
-import requests
-import os
 import streamlit as st
-
-from myutils.config import DOCQA_PROMPT, CHAT_EXAMPLES, BAICHUAN_URL, audit_PROMPT
-from myutils.es import ElasticsearchServer
-from myutils.faiss import FaissDocServer
-from myutils.process_data import loadtxt
-
-from .utils import handle_response, create_message
-
-content, labels, backends = loadtxt()
-result = {}
-for item in content:
-    if item[0] in result:
-        result[item[0]] += "{}的{}为{}".format(item[0], item[1], item[2])
-    else:
-        result[item[0]] = "{}的{}为{}".format(item[0], item[1], item[2])
-result['其他'] = ''
-
+from .pipelines.utils import handle_response, create_message
 
 def llm_base():
     with st.sidebar:
