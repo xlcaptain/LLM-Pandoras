@@ -17,6 +17,8 @@
 
 LLM-Workbench是一个使用Streamlit进行语言模型训练、微调和可视化的工具包。它非常适合研究人员和AI爱好者使用。
 
+<img alt="GitHub" src="https://github.com/xlcaptain/LLM-Workbench/blob/main/static/img/summary.png">
+
 ## 🚀 功能
 - **🤗 知识库问答**：我们提供多种知识查找方式，其中es使用8.9.0 混合搜索来根据输入搜索相关知识片段，并进行回答。
 - **📚 excel问答**：我们使用chatglm3根据问题生成对应的python代码，并且使用kernel内核来执行相关代码，以返回结果。
