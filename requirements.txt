@@ -12,7 +12,7 @@ nltk~=3.8.1
 unstructured[all-docs]>=0.10.4
 streamlit_option_menu
 spacy==3.6.1
-streamlit_antd_components
+streamlit_antd_components>=0.2.3
 pandas
 jupyter_client
 matplotlib

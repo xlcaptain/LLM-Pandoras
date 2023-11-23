@@ -53,7 +53,7 @@ def main():
                 sac.MenuItem('表格问答', icon='filetype-xlsx'),
             ]),
             sac.MenuItem(type='divider'),
-        ], format_func='title', open_all=True, index=1, key='selected_page')
+        ], format_func='title', open_all=True, index=1, on_change=on_mode_change, key='selected_page')
 
     if selected_page in pages:
         pages[selected_page]["func"]()

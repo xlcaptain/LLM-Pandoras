@@ -1,5 +1,7 @@
 import openai
 import os
+import dotenv
+dotenv.load_dotenv()
 
 BAICHUAN_URL = os.getenv("BAICHUAN_URL")
 
