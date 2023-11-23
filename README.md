@@ -65,3 +65,8 @@ LLM-Workbench is released under the MIT license. For more details, please see th
 
 If you have any questions or suggestions, feel free to ask us via email or GitHub.
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=xlcaptain/LLM-Workbench&type=Date)](https://star-history.com/#xlcaptain/LLM-Workbench&Date)
+
+
