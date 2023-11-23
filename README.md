@@ -15,6 +15,8 @@
 
 LLM-Workbench is a toolkit for training, fine-tuning, and visualizing language models using Streamlit. It is very suitable for researchers and AI enthusiasts.
 
+<img alt="GitHub" src="https://github.com/xlcaptain/LLM-Workbench/blob/main/static/img/summary.png">
+
 ## 🚀 Features
 - **🤗 Knowledge Base Q&A**: We provide various ways of knowledge retrieval, where es uses 8.9.0 hybrid search to search for relevant knowledge fragments based on input and answer.
 - **📚 Excel Q&A**: We use chatglm3 to generate corresponding python code based on the question, and use the kernel to execute the relevant code to return the result.
