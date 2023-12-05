@@ -1,0 +1,28 @@
+version: "3.7"
+services:
+  backend:
+    image: nvcr.io/nvidia/pytorch:22.12-py3
+    container_name: streamlit_backend
+    restart: always
+    # ports:
+    #   - "8501:8501"
+    volumes:
+      - /home/xulang/project/streamlit:/workspace
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    networks:
+      - network-backend
+    shm_size: '2gb'
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    ipc: host
+
+networks:
+  network-backend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.111.1.0/24
+          gateway: 10.111.1.1
