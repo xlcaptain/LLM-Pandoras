@@ -1,4 +1,4 @@
-FROM pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime
+FROM nvcr.io/nvidia/pytorch:22.12-py3
 
 WORKDIR /workspace
 
