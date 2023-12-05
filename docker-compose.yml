@@ -1,8 +1,8 @@
-version: "3.7"
+version: "3.10"
 services:
   backend:
-    image: nvcr.io/nvidia/pytorch:22.12-py3
-    container_name: streamlit_backend
+    image: llm-base:v1.0
+    container_name: llm-workbench
     restart: always
     # ports:
     #   - "8501:8501"

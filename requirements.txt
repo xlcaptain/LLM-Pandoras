@@ -1,5 +1,11 @@
+accelerate>=0.20.3
+datasets >= 1.8.0
+sentencepiece != 0.1.92
+protobuf
+scikit-learn
+
 elasticsearch>=8.9.0
-openai
+openai==0.28.1
 tiktoken
 langchain
 loguru
@@ -10,11 +16,24 @@ PyMuPDF==1.22.5
 faiss-cpu
 nltk~=3.8.1
 unstructured[all-docs]>=0.10.4
-streamlit_option_menu
-spacy==3.6.1
-streamlit_antd_components>=0.2.3
-pandas
-jupyter_client
+streamlit_antd_components
+
+pydantic==1.10.11
+fastapi==0.95.1
+sse-starlette
 matplotlib
-ipython
-python-dotenv==1.0.0
+trl>=0.7.2
+scipy
+peft>=0.4.0
+fire
+jieba
+rouge-chinese
+gradio==3.38.0
+uvicorn
+tenacity
+transformers==4.33.2
+sentence-transformers
+transformers_stream_generator
+cpm_kernels
+einops
+bitsandbytes
