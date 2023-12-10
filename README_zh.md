@@ -39,6 +39,7 @@ docker-compose up -d
 方式一：您可以通过以下命令安装LLM-Workbench：
 ```
 cd LLM-Workbench
+docker build -t llm-base:v1.0 .
 docker-compose up -d 
 ```
 其中，针对使用excel表格问答的情况，需要进入容器中，去指定kernel解释器：
