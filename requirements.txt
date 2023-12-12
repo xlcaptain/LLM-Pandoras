@@ -37,3 +37,4 @@ transformers_stream_generator
 cpm_kernels
 einops
 bitsandbytes
+bitsandbytes
