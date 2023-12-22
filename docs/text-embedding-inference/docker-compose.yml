@@ -1,0 +1,18 @@
+version: "3"
+services:
+  embedding:
+    image: ghcr.io/huggingface/text-embeddings-inference:0.6
+    container_name: tei_m3e
+    restart: always
+    command: --model-id /data/checkpoints/m3e_base/
+    ports:
+      - "8080:80"
+    volumes:
+      - /data:/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: "nvidia"
+              device_ids: [ "0" ]
+              capabilities: [ "gpu" ]
