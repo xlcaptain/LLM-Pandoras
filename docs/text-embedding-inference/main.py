@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     start = time.time()
     emb = Embeddings()
-    result = emb.embed_documents(texts=['text'],api_base="http://192.168.20.32:8080")
+    result = emb.embed_documents(texts=['text'],api_base="http://ip:port")
 
     print(time.time() - start)
 

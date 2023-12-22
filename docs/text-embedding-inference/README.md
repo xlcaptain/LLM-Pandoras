@@ -24,7 +24,7 @@ docker-compose up -d
 ```python
 #main.py
     emb = Embeddings()
-    result = emb.embed_documents(texts=['text'],api_base="http://192.168.20.32:8080")
+    result = emb.embed_documents(texts=['text'],api_base="http://ip:port")
 ```
 具体，请查看main.py文件的源码。如果想使用其他形式（不是使用openai）可打开http:ip:port/docs，查看api文档。
 
