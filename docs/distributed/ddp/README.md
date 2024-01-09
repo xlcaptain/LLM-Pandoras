@@ -8,7 +8,7 @@
 - 如果你没有GPU，那么请特别注意：模型训练部分可能需要改动。
 - 预计阅读时间：30分钟
 
-## 导入所需的库
+## 1.导入所需的库
 
 ```angular2html
 import os
@@ -24,7 +24,7 @@ from torchvision.models.resnet import ResNet, Bottleneck
 import torch.multiprocessing as mp
 ```
 
-## 数据集准备
+## 2.数据集准备
 ### 获取MNIST数据集
 ```angular2html
 def partition_dataset():
@@ -146,7 +146,7 @@ class SimpleCNN(nn.Module):
         return F.log_softmax(x, dim=1)
 ```
 
-## 分布式训练
+## 3.分布式训练
 ### 初始化分布式环境
 
 ```angular2html
