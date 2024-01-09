@@ -24,34 +24,27 @@ from torchvision.models.resnet import ResNet, Bottleneck
 import torch.multiprocessing as mp
 ```
 
-
-## 定义一个简单的CNN模型
-
-
+## 数据集准备
+### 获取MNIST数据集
 ```angular2html
-python
-class SimpleCNN(nn.Module):
-    def __init__(self):
-        super(SimpleCNN, self).init()
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.dropout1 = nn.Dropout(0.25)
-        self.dropout2 = nn.Dropout(0.5)
-        self.fc1 = nn.Linear(64 7 7, 128)
-        self.fc2 = nn.Linear(128, 10)
-
-    def forward(self, x):
-        x = F.relu(F.max_pool2d(self.conv1(x), 2))
-        x = F.relu(F.max_pool2d(self.conv2(x), 2))
-        x = x.view(-1, 64 7 7)
-        x = self.dropout1(x)
-        x = F.relu(self.fc1(x))
-        x = self.dropout2(x)
-        x = self.fc2(x)
-        return F.log_softmax(x, dim=1)
+def partition_dataset():
+    dataset = datasets.MNIST('./data', train=True, download=True,
+                             transform=transforms.Compose([
+                                 transforms.ToTensor(),
+                                 transforms.Normalize((0.1307,), (0.3081,))
+                             ]))
+    size = dist.get_world_size()
+    bsz = int(128 / float(size))
+    partition_sizes = [1.0 / size for _ in range(size)]
+    partition = DataPartitioner(dataset, partition_sizes)
+    partition = partition.use(dist.get_rank())
+    train_set = torch.utils.data.DataLoader(partition,
+                                         batch_size=bsz,
+                                         shuffle=True)
+    return train_set, bsz
 ```
 
-## 数据切分到不同的GPU上
+### 切分数据子集
 
 ```angular2html
 """ Dataset partitioning helper """
@@ -129,26 +122,44 @@ Test set: [8]
 ```
 上面的数据切分是数据并行的核心之一。我们可能需要将整个数据集等份切分成多份分布到不同的GPU上面。
 
-## 获取MNIST数据集
+## 模型定义
+
 ```angular2html
-def partition_dataset():
-    dataset = datasets.MNIST('./data', train=True, download=True,
-                             transform=transforms.Compose([
-                                 transforms.ToTensor(),
-                                 transforms.Normalize((0.1307,), (0.3081,))
-                             ]))
-    size = dist.get_world_size()
-    bsz = int(128 / float(size))
-    partition_sizes = [1.0 / size for _ in range(size)]
-    partition = DataPartitioner(dataset, partition_sizes)
-    partition = partition.use(dist.get_rank())
-    train_set = torch.utils.data.DataLoader(partition,
-                                         batch_size=bsz,
-                                         shuffle=True)
-    return train_set, bsz
+class SimpleCNN(nn.Module):
+    def __init__(self):
+        super(SimpleCNN, self).init()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.dropout1 = nn.Dropout(0.25)
+        self.dropout2 = nn.Dropout(0.5)
+        self.fc1 = nn.Linear(64 7 7, 128)
+        self.fc2 = nn.Linear(128, 10)
+
+    def forward(self, x):
+        x = F.relu(F.max_pool2d(self.conv1(x), 2))
+        x = F.relu(F.max_pool2d(self.conv2(x), 2))
+        x = x.view(-1, 64 7 7)
+        x = self.dropout1(x)
+        x = F.relu(self.fc1(x))
+        x = self.dropout2(x)
+        x = self.fc2(x)
+        return F.log_softmax(x, dim=1)
 ```
 
-## 分布式训练核心代码
+## 分布式训练
+### 初始化分布式环境
+
+```angular2html
+def init_process(rank, size, fn, backend='nccl'):
+    """ Initialize the distributed environment. """
+    os.environ['MASTER_ADDR'] = '127.0.0.1'
+    os.environ['MASTER_PORT'] = '29500'
+    dist.init_process_group(backend, rank=rank, world_size=size)
+    fn(rank, size)
+
+```
+
+### 分布式训练核心代码
 ``` diff
 def run(rank, size):
     torch.manual_seed(1234)
@@ -195,17 +206,6 @@ def average_gradients(model):
 > - data, target = data.to(device), target.to(device) 
 >```
 
-
-## 初始化分布式环境
-```angular2html
-def init_process(rank, size, fn, backend='nccl'):
-    """ Initialize the distributed environment. """
-    os.environ['MASTER_ADDR'] = '127.0.0.1'
-    os.environ['MASTER_PORT'] = '29500'
-    dist.init_process_group(backend, rank=rank, world_size=size)
-    fn(rank, size)
-
-```
 
 ## 训练
 ```angular2html
