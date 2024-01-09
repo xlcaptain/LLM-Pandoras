@@ -45,7 +45,7 @@ class SimpleCNN(nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 ```
-> :warning: **Note:** 这是一个注释。
+
 ## 数据切分到不同的GPU上
 
 ```angular2html
@@ -178,6 +178,16 @@ def average_gradients(model):
         dist.all_reduce(param.grad.data, op=dist.ReduceOp.SUM)
         param.grad.data /= size
 ```
+
+> [!NOTE]  
+>  对于没有GPU资源的，我们需要修改代码。
+> ```diff
+> -   device = torch.device(f'cuda:{rank}')  # 指定每个进程的GPU
+> -  torch.cuda.set_device(device)  # 设置当前进程的默认设备
+> - model = SimpleCNN().to(device) 
+> 
+> - data, target = data.to(device), target.to(device)  # 将数据和目标移动到GPU
+> ```
 
 ## 初始化分布式环境
 ```angular2html
