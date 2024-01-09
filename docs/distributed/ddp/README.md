@@ -1,7 +1,12 @@
 # 分布式深度学习
 
-这个代码示例展示了如何使用PyTorch进行分布数据并行训练。
-我们将从头开始展示如何实现分布式数据并行，在这过程中，你可能需要拥有多块GPU来进行实验。如果没有GPU请特别注意模型训练部分可能需要改动。
+这个代码示例展示了如何使用**PyTorch**进行分布式数据并行训练。我们将从头开始展示如何实现分布式数据并行。
+
+### 注意事项
+
+- 在这个过程中，你可能需要拥有多块GPU来进行实验。
+- 如果你没有GPU，那么请特别注意：模型训练部分可能需要改动。
+- 预计阅读时间：30分钟
 
 ## 导入所需的库
 
@@ -183,11 +188,11 @@ def average_gradients(model):
 >  对于没有GPU资源的，我们需要修改代码。
 > 
 >```diff
-> - device = torch.device(f'cuda:{rank}')  # 指定每个进程的GPU
-> - torch.cuda.set_device(device)  # 设置当前进程的默认设备
+> - device = torch.device(f'cuda:{rank}') 
+> - torch.cuda.set_device(device) 
 > - model = SimpleCNN().to(device) 
 > + model = SimpleCNN()
-> - data, target = data.to(device), target.to(device)  # 将数据和目标移动到GPU
+> - data, target = data.to(device), target.to(device) 
 >```
 
 
