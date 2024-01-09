@@ -219,4 +219,63 @@ if __name__ == "__main__":
 ```
 
 ## 结果显示
-<img alt="GitHub" src="https://github.com/xlcaptain/LLM-Workbench/blob/main/static/img/gpu_scaling.png">
+<img alt="GitHub" src="https://github.com/xlcaptain/LLM-Workbench/blob/main/static/img/distributed/gpu_scaling.png">
+从图中可看出，随着GPU数量的增加，训练时间明显降低，但是当GPU越多时，似乎降低的时间开始衰减，这部分导致的原因可能之一是由于分布式归约所导致的，也就是梯度平均过程中的通信导致的。
+
+## 扩展一：并行通信模式
+<img alt="GitHub" src="https://github.com/xlcaptain/LLM-Workbench/blob/main/static/img/distributed/Collective_Communication.png">
+
+
+## 扩展二：自定义环归约
+
+```angular2html
+""" Implementation of a ring-reduce with addition. """
+def allreduce(send, recv):
+   rank = dist.get_rank()
+   size = dist.get_world_size()
+   send_buff = send.clone()
+   recv_buff = send.clone()
+   accum = send.clone()
+
+   left = ((rank - 1) + size) % size
+   right = (rank + 1) % size
+
+   for i in range(size - 1):
+       if i % 2 == 0:
+           # Send send_buff
+           send_req = dist.isend(send_buff, right)
+           dist.recv(recv_buff, left)
+           accum[:] += recv_buff[:]
+       else:
+           # Send recv_buff
+           send_req = dist.isend(recv_buff, right)
+           dist.recv(send_buff, left)
+           accum[:] += send_buff[:]
+       send_req.wait()
+   recv[:] = accum[:]
+
+```
+这个函数实现了一个称为环归约（ring-Allreduce）的操作，这是一种在分布式计算中常用的并行通信模式。环归约是一种高效的方式来在所有进程间进行数据聚合，例如求和或者求平均。
+
+在这个函数中，每个进程都有一个发送缓冲区（send_buff）和一个接收缓冲区（recv_buff）。每个进程将自己的数据发送给它的右邻居，并从它的左邻居接收数据。然后，每个进程将接收到的数据添加到一个累积缓冲区（accum）中。这个过程重复size - 1次，其中size是进程的总数。在所有的迭代完成后，accum中的数据就是所有进程的数据之和。
+
+这个函数的主要用途是在分布式训练中进行梯度聚合。在数据并行的训练中，每个进程都会计算出模型参数的梯度。为了同步更新模型参数，所有的进程需要计算出梯度的全局平均值。这可以通过首先使用环归约来计算出梯度的全局和，然后再将这个和除以进程的数量来实现。
+
+请注意，这个函数使用了非阻塞发送（dist.isend）和阻塞接收（dist.recv）。这意味着每个进程在发送数据后可以立即开始接收数据，而不需要等待发送完成。这可以提高通信的并行性和效率。
+
+我们可以使用我们自定义的ring-Allreduce来替换掉之前我们使用默认的归约。
+```diff
+def average_gradients(model):
+    size = float(dist.get_world_size())
+    for param in model.parameters():
+-       dist.all_reduce(param.grad.data, op=dist.ReduceOp.SUM)
+-       param.grad.data /= size
+    
++       # 创建一个接收缓冲区
++       recv_buff = torch.zeros_like(param.grad.data)
++       # 使用allreduce函数来进行梯度聚合
++       allreduce(param.grad.data, recv_buff)
++       # 使用接收缓冲区中的数据来更新梯度
++       param.grad.data = recv_buff / size
+```
+
