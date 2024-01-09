@@ -45,10 +45,7 @@ class SimpleCNN(nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 ```
-> **Note:** 这是一个注释。
-<div style="background-color: #ffffcc; padding: 10px; border-radius: 5px;">
-<strong>Note:</strong> 这是一个注释。
-</div>
+> :warning: **Note:** 这是一个注释。
 ## 数据切分到不同的GPU上
 
 ```angular2html
