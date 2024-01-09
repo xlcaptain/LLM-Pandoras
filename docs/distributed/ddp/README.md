@@ -144,7 +144,7 @@ def partition_dataset():
     return train_set, bsz
 ```
 
-## 分布式训练代码
+## 分布式训练核心代码
 ``` diff
 def run(rank, size):
     torch.manual_seed(1234)
@@ -178,12 +178,45 @@ def average_gradients(model):
     for param in model.parameters():
         dist.all_reduce(param.grad.data, op=dist.ReduceOp.SUM)
         param.grad.data /= size
-
-
--       # 创建一个接收缓冲区
--        recv_buff = torch.zeros_like(param.grad.data)
--        # 使用allreduce函数来进行梯度聚合
--        allreduce(param.grad.data, recv_buff)
--        # 使用接收缓冲区中的数据来更新梯度
--        param.grad.data = recv_buff / size
 ```
+
+## 初始化分布式环境
+```angular2html
+def init_process(rank, size, fn, backend='nccl'):
+    """ Initialize the distributed environment. """
+    os.environ['MASTER_ADDR'] = '127.0.0.1'
+    os.environ['MASTER_PORT'] = '29500'
+    dist.init_process_group(backend, rank=rank, world_size=size)
+    fn(rank, size)
+
+```
+
+## 训练
+```angular2html
+if __name__ == "__main__":
+    from time import time
+    import matplotlib.pyplot as plt
+    sizes = [1, 2, 3, 4]  # 假设你想比较1, 2, 和 4个GPU的性能
+    times = []
+    if mp.get_start_method(allow_none=True) is None:
+        mp.set_start_method("spawn")
+
+    for size in sizes:
+        start_time = time()
+        processes = []
+        for rank in range(size):
+            p = mp.Process(target=init_process, args=(rank, size, run))
+            p.start()
+            processes.append(p)
+
+        for p in processes:
+            p.join()
+        
+        end_time = time()
+        total_time = end_time - start_time
+        times.append(total_time)
+        print(f"Total execution time for {size} GPUs: {total_time} seconds")
+```
+
+## 结果显示
+<img alt="GitHub" src="https://github.com/xlcaptain/LLM-Workbench/blob/main/static/img/gpu_scaling.png">
