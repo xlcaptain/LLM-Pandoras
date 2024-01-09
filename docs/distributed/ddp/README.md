@@ -124,3 +124,66 @@ Validation set: [1, 2]
 Test set: [8]
 ```
 上面的数据切分是数据并行的核心之一。我们可能需要将整个数据集等份切分成多份分布到不同的GPU上面。
+
+## 获取MNIST数据集
+```angular2html
+def partition_dataset():
+    dataset = datasets.MNIST('./data', train=True, download=True,
+                             transform=transforms.Compose([
+                                 transforms.ToTensor(),
+                                 transforms.Normalize((0.1307,), (0.3081,))
+                             ]))
+    size = dist.get_world_size()
+    bsz = int(128 / float(size))
+    partition_sizes = [1.0 / size for _ in range(size)]
+    partition = DataPartitioner(dataset, partition_sizes)
+    partition = partition.use(dist.get_rank())
+    train_set = torch.utils.data.DataLoader(partition,
+                                         batch_size=bsz,
+                                         shuffle=True)
+    return train_set, bsz
+```
+
+## 分布式训练代码
+``` diff
+def run(rank, size):
+    torch.manual_seed(1234)
+    train_set, bsz = partition_dataset()
+
+    device = torch.device(f'cuda:{rank}')  # 指定每个进程的GPU
+    torch.cuda.set_device(device)  # 设置当前进程的默认设备
+
+    model = SimpleCNN().to(device) 
+    optimizer = optim.SGD(model.parameters(),
+                          lr=0.01, momentum=0.5)
+
+    num_batches = ceil(len(train_set.dataset) / float(bsz))
+    for epoch in range(10):
+        epoch_loss = 0.0
+        for data, target in train_set:
+            data, target = data.to(device), target.to(device)  # 将数据和目标移动到GPU
+            optimizer.zero_grad()
+            output = model(data)
+            loss = F.nll_loss(output, target)
+            epoch_loss += loss.item()
+            loss.backward()
+            average_gradients(model)
+            optimizer.step()
+        print('Rank ', dist.get_rank(), ', epoch ',
+              epoch, ': ', epoch_loss / num_batches)
+
+""" Gradient averaging. """
+def average_gradients(model):
+    size = float(dist.get_world_size())
+    for param in model.parameters():
+        dist.all_reduce(param.grad.data, op=dist.ReduceOp.SUM)
+        param.grad.data /= size
+
+
+-       # 创建一个接收缓冲区
+-        recv_buff = torch.zeros_like(param.grad.data)
+-        # 使用allreduce函数来进行梯度聚合
+-        allreduce(param.grad.data, recv_buff)
+-        # 使用接收缓冲区中的数据来更新梯度
+-        param.grad.data = recv_buff / size
+```
