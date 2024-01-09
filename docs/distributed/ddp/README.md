@@ -181,13 +181,15 @@ def average_gradients(model):
 
 > [!NOTE]  
 >  对于没有GPU资源的，我们需要修改代码。
-> ```diff
-> -   device = torch.device(f'cuda:{rank}')  # 指定每个进程的GPU
-> -  torch.cuda.set_device(device)  # 设置当前进程的默认设备
-> - model = SimpleCNN().to(device) 
 > 
+>```diff
+> - device = torch.device(f'cuda:{rank}')  # 指定每个进程的GPU
+> - torch.cuda.set_device(device)  # 设置当前进程的默认设备
+> - model = SimpleCNN().to(device) 
+> + model = SimpleCNN()
 > - data, target = data.to(device), target.to(device)  # 将数据和目标移动到GPU
-> ```
+>```
+
 
 ## 初始化分布式环境
 ```angular2html
