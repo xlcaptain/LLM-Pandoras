@@ -1,4 +1,3 @@
-# LLM-Workbench
 <img alt="GitHub" src="https://github.com/xlcaptain/LLM-Workbench/blob/main/static/img/logo3.png">
 <p align="center">
     <a href="https://github.com/xlcaptain/LLM-Workbench/blob/main/LICENSE">
