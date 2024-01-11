@@ -1,4 +1,4 @@
-<img alt="GitHub" src="https://github.com/xlcaptain/LLM-Workbench/blob/main/static/img/logo3.png">
+<img alt="GitHub" src="https://github.com/xlcaptain/LLM-Workbench/blob/main/static/img/logo1.png">
 <p align="center">
     <a href="https://github.com/xlcaptain/LLM-Workbench/blob/main/LICENSE">
         <img alt="GitHub" src="https://img.shields.io/github/license/huggingface/transformers.svg?color=blue">
