@@ -4,8 +4,8 @@
 
 ## 环境要求
 
-- Python 3.x
-- PyTorch 1.x
+- Python 3.9
+- PyTorch 2.1
 - torchvision
 - matplotlib
 
@@ -13,7 +13,7 @@
 
 ## 文件结构
 
-- `dist_train.py`: 包含分布式训练的完整代码。
+- `complete_resnet_demo.py`: 包含分布式训练的完整代码。
 - `single_gpu_train.py`: 包含单卡训练的完整代码。
 - `README.md`: 项目说明文件。
 
